@@ -20,7 +20,7 @@ def welcome(request):
 
 
 @api_view(['GET'])
-async def test(request):
+async def api(request):
     visitor_name = request.query_params.get('visitor_name', 'Mark')
     
     async with httpx.AsyncClient() as client:
@@ -31,7 +31,7 @@ async def test(request):
         location_data = location_response.json()
         
         weather_response = await client.get(
-            f"https://api.openweathermap.org/data/2.5/weather?lat={location_data['lat']}&lon={location_data['lon']}&units=Metric&appid={os.getenv('api_key')}"
+            f"https://api.openweathermap.org/data/2.5/weather?lat={location_data['lat']}&lon={location_data['lon']}&units=Metric&appid=bb7a48fca8cf8f19e33795a6d147c742"
         )
         weather_data = weather_response.json()
     

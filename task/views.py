@@ -29,21 +29,16 @@ def get_client_ip(request):
 def api(request):
     visitor_name = request.GET.get('visitor_name', 'Mark')
     
-     # Get the client's IP address
     client_ip = get_client_ip(request)
     
-    # Get the location data
-    location_response = requests.get(f'http://ip-api.com/json/{client_ip}')
-    location_data = location_response.json()
+    locat_resp = requests.get(f'http://ip-api.com/json/{client_ip}')
+    location_data = locat_resp.json()
 
-    # Get the weather data
-    weather_response = requests.get(
-        f"https://api.openweathermap.org/data/2.5/weather?lat={location_data['lat']}&lon={location_data['lon']}&units=Metric&appid={os.getenv("api_key")}"
-    )
-    weather_data = weather_response.json()
+    weather_resp = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={location_data['lat']}&lon={location_data['lon']}&units=Metric&appid={os.getenv("api_key")}")
+    weather_data = weather_resp.json()
     
     data = {
-        "client_id": client_ip,
+        "client_ip": client_ip,
         "location": location_data["city"],
         "greeting": f"Hello, {visitor_name.title()}!,the temperature is {weather_data['main']['temp']} degrees Celsius in {location_data['city']}"
     }

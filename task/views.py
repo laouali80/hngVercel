@@ -17,18 +17,34 @@ def welcome(request):
 
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
 
 @api_view(['GET'])
 def api(request):
     visitor_name = request.GET.get('visitor_name', 'Mark')
     
-    # Get the IP address
-    ip_address_response = requests.get('http://api.ipify.org')
-    ip_address = ip_address_response.text
+     # Get the client's IP address
+    client_ip = get_client_ip(request)
     
     # Get the location data
-    location_response = requests.get(f'http://ip-api.com/json/{ip_address}')
+    location_response = requests.get(f'http://ip-api.com/json/{client_ip}')
     location_data = location_response.json()
+
+    # Get the IP address
+    # ip_address_response = requests.get('http://api.ipify.org')
+    # ip_address = ip_address_response.text
+    
+    # Get the location data
+    # location_response = requests.get(f'http://ip-api.com/json/{ip_address}')
+    # location_data = location_response.json()
     
     # Get the weather data
     weather_response = requests.get(
@@ -37,7 +53,7 @@ def api(request):
     weather_data = weather_response.json()
     
     data = {
-        "client_id": ip_address,
+        "client_id": client_ip,
         "location": location_data["city"],
         "greeting": f"Hello, {visitor_name.title()}!,the temperature is {weather_data['main']['temp']} degrees Celsius in {location_data['city']}"
     }

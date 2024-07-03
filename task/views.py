@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-import httpx
+import requests
+from django.shortcuts import redirect
 
 # Create your views here.
 
@@ -13,30 +14,32 @@ load_dotenv()
 
 @api_view(['GET'])
 def welcome(request):
-    test = {
-        'dcijsf':'test',
-    }
-    return Response(test)
+    return redirect('api')
+
+
 
 
 @api_view(['GET'])
-async def api(request):
-    visitor_name = request.query_params.get('visitor_name', 'Mark')
+def api(request):
+    visitor_name = request.GET.get('visitor_name', 'Mark')
     
-    async with httpx.AsyncClient() as client:
-        ip_address_response = await client.get('http://api.ipify.org')
-        ip_address = ip_address_response.text
-        
-        location_response = await client.get(f'http://ip-api.com/json/{ip_address}')
-        location_data = location_response.json()
-        
-        weather_response = await client.get(
-            f"https://api.openweathermap.org/data/2.5/weather?lat={location_data['lat']}&lon={location_data['lon']}&units=Metric&appid=bb7a48fca8cf8f19e33795a6d147c742"
-        )
-        weather_data = weather_response.json()
+    # Get the IP address
+    ip_address_response = requests.get('http://api.ipify.org')
+    ip_address = ip_address_response.text
     
-    return Response({
+    # Get the location data
+    location_response = requests.get(f'http://ip-api.com/json/{ip_address}')
+    location_data = location_response.json()
+    
+    # Get the weather data
+    weather_response = requests.get(
+        f"https://api.openweathermap.org/data/2.5/weather?lat={location_data['lat']}&lon={location_data['lon']}&units=Metric&appid={os.getenv("api_key")}"
+    )
+    weather_data = weather_response.json()
+    
+    data = {
         "client_id": ip_address,
         "location": location_data["city"],
         "greeting": f"Hello, {visitor_name.title()}!, the temperature is {weather_data['main']['temp']} degrees Celsius in {location_data['city']}"
-    })
+    }
+    return Response(data)

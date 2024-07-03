@@ -1,5 +1,5 @@
 import requests
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 
 from django.http import JsonResponse
 
@@ -13,7 +13,7 @@ load_dotenv()
 
 
 def welcome(request):
-    return redirect('api')
+    return redirect(reverse('api') + '?visitor_name=mark')
 
 
 def get_client_ip(request):
